@@ -2,6 +2,7 @@ from data_source import btc_data, eth_data, bnb_data, xrp_data, ada_data
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime as dt
 
 import ta
 import talib as tal
@@ -15,6 +16,8 @@ ta_symbols = {}
 for i, s in enumerate(symbols):
     coin = (s[0: 3].lower())
     ta_symbols[f'ta_{coin}'] = df[i].copy()
+    
+    ta_symbols[f'ta_{coin}']['open_time'] = pd.to_datetime(ta_symbols[f'ta_{coin}']['open_time'], unit = 'ms')
     
     #MOMENTUM INDICATORS
     #RSI - Relative Strength Index
