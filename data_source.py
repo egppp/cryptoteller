@@ -31,8 +31,8 @@ def get_data():
         data.to_csv(symbol+'.csv', index = None, header=True)
     return "data sourced for {symbols}"
 
-'''get_data()
-'''
+#get_data()
+
 
 btc_data = pd.read_csv("data/BTCUSDT.csv")
 eth_data = pd.read_csv("data/ETHUSDT.csv")
