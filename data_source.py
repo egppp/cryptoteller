@@ -7,11 +7,11 @@ api_secret = 'MY_SECRET_API'
 
 
 symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
-interval = '30m'
+interval = '6h'
 
 now = dt.datetime.now(dt.timezone.utc)
-start = dt.datetime(2022, 1, 1) 
-end = dt.datetime(2023, 5, 31) 
+start = dt.datetime(2020, 1, 1) 
+end = dt.datetime(2023, 5, 31)  
 
 # Gives you a timestamp in ms
 start_str = int(round(start.timestamp() * 1000, 0))
@@ -31,6 +31,9 @@ def get_data():
         data.to_csv(symbol+'.csv', index = None, header=True)
     return "data sourced for {symbols}"
 
+'''get_data()
+'''
+
 btc_data = pd.read_csv("data/BTCUSDT.csv")
 eth_data = pd.read_csv("data/ETHUSDT.csv")
 bnb_data = pd.read_csv("data/BNBUSDT.csv")
@@ -40,7 +43,7 @@ ada_data = pd.read_csv("data/ADAUSDT.csv")
 #data=data.astype(float)
 #data["close"].plot(title = 'DOTUSDT', legend = 'close')
 
-from pytrends.request import TrendReq
+'''from pytrends.request import TrendReq
 
 pytrends = TrendReq(hl='en-US', tz=360)
 kw_list = ["bitcoin"] # list of keywords to get data 
@@ -48,3 +51,4 @@ kw_list = ["bitcoin"] # list of keywords to get data
 pytrends.build_payload(kw_list, cat=0, timeframe='2022-01-01 2023-05-31')
 gt_data = pytrends.interest_over_time()
 gt_data.head()
+'''
