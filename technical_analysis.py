@@ -68,3 +68,6 @@ for i, s in enumerate(symbols):
     ta_symbols[f'ta_{coin}']['CCI'] = tal.CCI(ta_symbols[f'ta_{coin}']['high'], ta_symbols[f'ta_{coin}']['low'], ta_symbols[f'ta_{coin}']['close'], timeperiod=14)
 
     print(ta_symbols[f'ta_{coin}'].head())
+
+    ta_symbols[f'ta_{coin}'].to_csv(f'ta_{coin}.csv')
+    
