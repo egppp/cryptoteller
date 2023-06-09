@@ -113,15 +113,15 @@ def create_tw_df():
             with open(file, "r") as f:
                 data = json.load(f)
                 for i in range(len(data)):
-                    if 'data' in data[i] and 'items' in data[i]['data']:
-                        df = pd.DataFrame.from_dict(data['data']['items'])
+                    if 'data' in data[i]['data'] and 'items' in data[i]['data']['data']:
+                        df = pd.DataFrame.from_dict(data[i]['data']['data']['items'])
                         data_frames.append(df)
  
         tw_symbols[f"tw_{coin}"] = pd.concat(data_frames)
-        # print(tw_symbols[f"tw_{coin}"].info())
+        print(tw_symbols[f"tw_{coin}"].info())
         
     return tw_symbols
-        
+   
 tw_symbols = create_tw_df()        
 
 print(tw_symbols)
