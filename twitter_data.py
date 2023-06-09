@@ -118,10 +118,8 @@ def create_tw_df():
                         data_frames.append(df)
  
         tw_symbols[f"tw_{coin}"] = pd.concat(data_frames)
-        print(tw_symbols[f"tw_{coin}"].info())
         
     return tw_symbols
    
 tw_symbols = create_tw_df()        
 
-print(tw_symbols)
