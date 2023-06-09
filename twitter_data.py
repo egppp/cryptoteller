@@ -13,7 +13,7 @@ import glob
 symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
 keywords_list = ["bitcoin", "ethereum", "binance", "ripple", "cardano"]
 
-
+'''
 #REQUEST
 base_url = "https://api.data365.co/v1.1/twitter/search/post/update"
 get_url = "https://api.data365.co/v1.1/twitter/search/post/posts"
@@ -94,9 +94,8 @@ for keyword in keywords_list:
     with open(file_name, "w") as file:
         json.dump(keyword_data, file)
     print(f"Saved response for {keyword} as {file_name}")
-
-
 '''
+
 def create_tw_df():
     tw_symbols = {}    
     for i, s in enumerate(symbols):
@@ -113,9 +112,10 @@ def create_tw_df():
         for file in files:     
             with open(file, "r") as f:
                 data = json.load(f)
-                if 'data' in data and 'items' in data['data']:
-                    df = pd.DataFrame.from_dict(data['data']['items'])
-                    data_frames.append(df)
+                for i in range(len(data)):
+                    if 'data' in data[i] and 'items' in data[i]['data']:
+                        df = pd.DataFrame.from_dict(data['data']['items'])
+                        data_frames.append(df)
  
         tw_symbols[f"tw_{coin}"] = pd.concat(data_frames)
         # print(tw_symbols[f"tw_{coin}"].info())
@@ -124,5 +124,4 @@ def create_tw_df():
         
 tw_symbols = create_tw_df()        
 
-print(tw_symbols['tw_eth']['text'])
-'''
+print(tw_symbols)
