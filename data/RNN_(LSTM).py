@@ -7,3 +7,7 @@ from matplotlib.pylab import rcParams
 from times_series_workflow import *
 from clean_data import clean
 import pandas_ta as ta
+
+
+#loading btc data
+data=pd.read_csv("data/technical analysis/ta_btc.csv")
