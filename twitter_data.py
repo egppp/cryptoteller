@@ -10,8 +10,7 @@ from dateutil.relativedelta import relativedelta
 import time
 import glob
 
-symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
-keywords_list = ["bitcoin", "ethereum", "binance", "ripple", "cardano"]
+symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"] 
 
 
 #REQUEST
@@ -19,11 +18,12 @@ base_url = "https://api.data365.co/v1.1/twitter/search/post/update"
 get_url = "https://api.data365.co/v1.1/twitter/search/post/posts"
 access_token = 'ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKRmJHbDZZV0psZEdoSGFYSmhiR1J2SWl3aWFXRjBJam94TmpnMk1EY3pNalU0TGpJM09UWXlOSDAuVDJsSEp6T0IyRjRyalNEcXNGdWRXV3hqUF80VjUtLW9iYzdNM21GOTZOZw=='
 
-keywords_list = ["bitcoin OR btc", "ethereum OR eth", "binance OR bnb", "ripple OR xrp", "cardano OR ada"]  # Example list of keywords
-start_date = datetime.strptime("2020-10-01", "%Y-%m-%d")
-end_date = datetime.strptime("2020-12-01", "%Y-%m-%d")
 
-'''
+keywords_list = ["bitcoin OR btc", "ethereum OR eth", "binance OR bnb", "ripple OR xrp", "cardano OR ada"]  #remember to update! 12.06
+start_date = datetime.strptime("2021-01-01", "%Y-%m-%d")
+end_date = datetime.strptime("2021-03-01", "%Y-%m-%d")
+
+
 for keyword in keywords_list:
     keyword_data = []
 
@@ -123,5 +123,5 @@ def create_tw_df():
     return tw_symbols
    
 tw_symbols = create_tw_df()
-    
+'''
 
