@@ -23,7 +23,7 @@ keywords_list = ["bitcoin OR btc", "ethereum OR eth", "binance OR bnb", "ripple 
 start_date = datetime.strptime("2021-01-01", "%Y-%m-%d")
 end_date = datetime.strptime("2021-03-01", "%Y-%m-%d")
 
-
+'''
 for keyword in keywords_list:
     keyword_data = []
 
@@ -123,5 +123,3 @@ def create_tw_df():
     return tw_symbols
    
 tw_symbols = create_tw_df()
-'''
-
