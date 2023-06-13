@@ -12,52 +12,19 @@ st.set_page_config(
 
 @st.experimental_memo
 def get_data():
-    df = pd.read_csv("android-games.csv")
-    source = source[source.date.gt("2004-01-01")]
-    return source
+    df = pd.read_csv("data/sentiment/btc.csv")
+    text = " ".join(tweet for tweet in df.new_tweet)
+    word_cloud = WordCloud(collocations = False, background_color = 'white').generate(text)
+    return word_cloud
 
 
 @st.experimental_memo(ttl=60 * 60 * 24)
-def get_chart(data):
-    hover = alt.selection_single(
-        fields=["date"],
-        nearest=True,
-        on="mouseover",
-        empty="none",
-    )
-
-    lines = (
-        alt.Chart(data, height=500, title="Evolution of stock prices")
-        .mark_line()
-        .encode(
-            x=alt.X("date", title="Date"),
-            y=alt.Y("price", title="Price"),
-            color="symbol",
-        )
-    )
-
-    # Draw points on the line, and highlight based on selection
-    points = lines.transform_filter(hover).mark_circle(size=65)
-
-    # Draw a rule at the location of the selection
-    tooltips = (
-        alt.Chart(data)
-        .mark_rule()
-        .encode(
-            x="yearmonthdate(date)",
-            y="price",
-            opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
-            tooltip=[
-                alt.Tooltip("date", title="Date"),
-                alt.Tooltip("price", title="Price (USD)"),
-            ],
-        )
-        .add_selection(hover)
-    )
-
-    return (lines + points + tooltips).interactive()
-
-
+def get_chart(world_cloud):
+    plt.imshow(word_cloud, interpolation='bilinear')
+    plt.axis("off")
+    plt.show()
+    
+    
 st.title("⬇ Time series annotations")
 
 st.write("Give more context to your time series using annotations!")
