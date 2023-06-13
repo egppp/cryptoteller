@@ -124,21 +124,26 @@ WINDOW_SIZE = preprocessor.SEQ_LEN - 1
 
 
 
+
 def init_model(WINDOW_SIZE, n_sentiments, dropout, loss, optimizer, metrics):
-
     inputs_price = keras.Input(shape=(WINDOW_SIZE, 1))
-    inputs_sentiment = keras.Input(shape=(WINDOW_SIZE,n_sentiments))
-    hidden_lstm=LSTM(10, return_sequences=False, kernel_regularizer=L1L2(l1=0.05, l2=0.05))(inputs_price)
+    inputs_sentiment = keras.Input(shape=(WINDOW_SIZE, n_sentiments))
 
-    concat = keras.layers.concatenate([hidden_lstm, inputs_sentiment[:, -1, :]], -1)
-    hidden_final=keras.layers.Dense(32)(concat)
-    output=keras.layers.Dense(1)(hidden_final)
+    hidden_lstm = LSTM(10, return_sequences=True, kernel_regularizer=L1L2(l1=0.05, l2=0.05))(inputs_price)
+    hidden_lstm = Dropout(rate=dropout)(hidden_lstm)
+
+    hidden_lstm = LSTM(30, return_sequences=True, kernel_regularizer=L1L2(l1=0.05, l2=0.05))(hidden_lstm)
+    hidden_lstm = Dropout(rate=dropout)(hidden_lstm)
+
+    hidden_lstm = LSTM(50, return_sequences=False, kernel_regularizer=L1L2(l1=0.05, l2=0.05))(hidden_lstm)
+
+    concat = keras.layers.concatenate([hidden_lstm, inputs_sentiment[:, -1, :]], axis=-1)
+    hidden_final = keras.layers.Dense(32)(concat)
+    output = Dense(1)(hidden_final)
     model = Model(inputs=[inputs_price, inputs_sentiment], outputs=output)
 
     print(model.summary())
     return model
-
-
 
 
 model=init_model(WINDOW_SIZE, n_sentiment_classes, DROPOUT, 'mean_squared_error', 'adam', ["mae"])

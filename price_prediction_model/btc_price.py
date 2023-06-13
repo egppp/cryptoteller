@@ -41,7 +41,7 @@ scaled_close = scaler.fit_transform(close_price)
 
 # Preprocessing
 class Preprocessor:
-    def __init__(self, SEQ_LEN=100):
+    def __init__(self, SEQ_LEN=50):
         self.SEQ_LEN=SEQ_LEN
         pass
     def to_sequences(self, data, seq_len):
@@ -98,7 +98,7 @@ from tensorflow import keras
 from keras.callbacks import EarlyStopping
 
 es = EarlyStopping(monitor="val_loss",
-                       patience=3,
+                       patience=15,
                        mode="min",
                        restore_best_weights=True)
 
@@ -115,7 +115,7 @@ BATCH_SIZE = 64
 history = model.fit(
     X_train,
     y_train,
-    epochs=6,
+    epochs=20,
     batch_size=BATCH_SIZE,
     shuffle=False,
     validation_split=0.1,
