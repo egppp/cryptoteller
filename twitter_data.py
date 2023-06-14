@@ -11,7 +11,7 @@ keywords_list = ["bitcoin OR btc", "ethereum OR eth", "binance OR bnb", "ripple 
 start_date = datetime.strptime("2021-01-01", "%Y-%m-%d")
 end_date = datetime.strptime("2021-03-01", "%Y-%m-%d")
 
-def create_tw_df():
+def create_tw_df(from_date):
     tw_symbols = {}    
     for i, s in enumerate(symbols):
         coin = s[0: 3].lower()
@@ -19,12 +19,11 @@ def create_tw_df():
         # Specify the directory path
         directory = "data/twitter"
         # Use glob to find files starting with "bitcoin" in the directory
-        fpath = f"{directory}/{keywords_list[i]}*"
+        fpath = f"{directory}/{keywords_list[i]}_{from_date}*"
         files = glob.glob(fpath)
+        print(files)
         
-        # Iterate through the files using a for loop
-        
-        for file in files:     
+        for file in files: 
             with open(file, "r") as f:
                 data = json.load(f)
                 for i in range(len(data)):
@@ -36,4 +35,6 @@ def create_tw_df():
         
     return tw_symbols
    
-tw_symbols = create_tw_df()
+tw_symbols = create_tw_df("06.21")
+
+print(tw_symbols['tw_btc']['created_time'])
