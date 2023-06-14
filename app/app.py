@@ -5,59 +5,68 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import os
 from PIL import Image
+from datetime import date, timedelta
 
 image = Image.open('image.png')
 st.image(image)
 
+# Define the available cryptocurrencies
+cryptocurrencies = ["BTC-Bitcoin", "ETH-Ethereum", "BNB-Binance", "XRP-Ripple", "ADA-Cardano"]
+
+def main():
 # Get the user-selected cryptocurrency
-cryptocurrencies = st.selectbox("Which crypto?", options=["BTC-Bitcoin", "ETH-Ethereum", "BNB-Binance", "XRP-Ripple", "ADA-Cardano"])
+    selected_crypto = st.selectbox("Which crypto?", cryptocurrencies)
+    if st.button("View Price"):
+        # Navigate to the price plot page
+        price_plot_page(selected_crypto)
+    
+def price_plot_page(selected_crypto):
 
-# Map the selected cryptocurrency to the corresponding CSV file name
-crypto_mapping = {
-    "BTC-Bitcoin": "BTCUSDT.csv",
-    "ETH-Ethereum": "ETHUSDT.csv",
-    "BNB-Binance": "BNBUSDT.csv",
-    "XRP-Ripple": "XRPUSDT.csv",
-    "ADA-Cardano": "ADAUSDT.csv"
-}
+    # Map the selected cryptocurrency to the corresponding CSV file name
+    crypto_mapping = {
+        "BTC-Bitcoin": "BTCUSDT.csv",
+        "ETH-Ethereum": "ETHUSDT.csv",
+        "BNB-Binance": "BNBUSDT.csv",
+        "XRP-Ripple": "XRPUSDT.csv",
+        "ADA-Cardano": "ADAUSDT.csv"
+    }
 
-# Get the file path for the selected cryptocurrency
-file_path = f"data/{crypto_mapping[cryptocurrencies]}"
+    # Get the file path for the selected cryptocurrency
+    file_path = f"data/{crypto_mapping[selected_crypto]}"
 
-# Load the price data for the selected cryptocurrency
-price_data = pd.read_csv(file_path)
+    # Load the price data for the selected cryptocurrency
+    price_data = pd.read_csv(file_path)
 
-# Convert 'Date' column to datetime type
-price_data['open_time'] = pd.to_datetime(price_data['open_time'], unit='ms')
+    # Convert 'Date' column to datetime type
+    price_data['open_time'] = pd.to_datetime(price_data['open_time'], unit='ms')
 
-# Define the available date range
-min_date = price_data['open_time'].min().date()
-max_date = price_data['open_time'].max().date()
+    # Define the available date range
+    min_date = price_data['open_time'].min().date()
+    max_date = price_data['open_time'].max().date()
 
-# Define the default value for the "From date" input
-default_from_date = min_date
+    # Define the default value for the "From date" input
+    default_from_date = min_date
 
-# Get the date range from the user
-from_date = st.date_input('From date', value=default_from_date, min_value=min_date, max_value=max_date)
-to_date = st.date_input('To date', min_value=from_date, max_value=max_date)
+    # Get the date range from the user
+    from_date = st.date_input('From date', value=default_from_date, min_value=min_date, max_value=max_date)
+    to_date = st.date_input('To date', min_value=from_date, max_value=max_date, value=max_date)
 
-# Plot the price graph
-fig, ax = plt.subplots()
-ax.plot(filtered_data['open_time'], filtered_data['open'])
-ax.set_xlabel('Date')
-ax.set_ylabel('Price')
-ax.set_title('Price Graph')
-st.pyplot(fig)
+    # Filter the price data based on the selected date range
+    filtered_data = price_data[(price_data['open_time'].dt.date >= from_date) & (price_data['open_time'].dt.date <= to_date)]
 
-# Get the absolute path of the current working directory
-current_dir = os.getcwd()
+    # Plot the price graph
+    fig, ax = plt.subplots()
+    ax.plot(filtered_data['open_time'], filtered_data['open'], color='#275C54')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Price')
+    ax.set_title(f'Price evolution for {selected_crypto}')
+    st.pyplot(fig)
 
-# Define the path of the file relative to the current directory
-symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
+    # Get the absolute path of the current working directory
+    current_dir = os.getcwd()
 
-for s in symbols:
-    coin = (s[0: 3].lower())
-    file_path = f"data/sentiment/{coin}.csv"
+    # Define the path of the file relative to the current directory
+    file_path = f"data/sentiment/{selected_crypto[0: 3].lower()}.csv"
 
     # Join the current directory path with the file path to get the absolute file path
     absolute_path = os.path.join(current_dir, file_path)
@@ -79,12 +88,12 @@ for s in symbols:
     #, font_path='/System/Library/Fonts/Supplemental/Arial.ttf'
     word_cloud = WordCloud(collocations = False, background_color = 'white', font_path='/System/Library/Fonts/Supplemental/Arial.ttf', colormap='BrBG', width=800, height=400).generate(text)
     
-    def main():
-        # Display the generated Word Cloud
-        fig, ax = plt.subplots()
-        ax.imshow(word_cloud, interpolation='bilinear')
-        ax.axis("off")
-        st.pyplot(fig)
 
-    if __name__ == "__main__":
-        main()
+    # Display the generated Word Cloud
+    fig, ax = plt.subplots()
+    ax.imshow(word_cloud, interpolation='bilinear')
+    ax.axis("off")
+    st.pyplot(fig)
+
+if __name__ == "__main__":
+    main()
