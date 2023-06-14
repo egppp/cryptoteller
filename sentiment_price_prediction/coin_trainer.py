@@ -71,12 +71,10 @@ def c_trainer(coin, plotting=False):
 
     # Change the time unit of the "open_time" column
     df["open_time"] = pd.to_datetime(df["open_time"], unit='ms', origin='unix')
-    df = df.drop(columns=["close_time"])
-
 
     # Normalization
     scaler = StandardScaler()
-    close_price = df.close.values.reshape(-1, 1)
+    close_price = df.close.values.reshape(-1, 1) # reshapes the numpy array so it can be pugged in the fit_transform
     scaled_close = scaler.fit_transform(close_price)
 
     scaled_close.shape
