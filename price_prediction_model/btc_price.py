@@ -41,7 +41,7 @@ scaled_close = scaler.fit_transform(close_price)
 
 # Preprocessing
 class Preprocessor:
-    def __init__(self, SEQ_LEN=50):
+    def __init__(self, SEQ_LEN=100):
         self.SEQ_LEN=SEQ_LEN
         pass
     def to_sequences(self, data, seq_len):
@@ -81,10 +81,10 @@ model.add(LSTM(WINDOW_SIZE, return_sequences=True, input_shape=(WINDOW_SIZE, X_t
                         )
 model.add(Dropout(rate=DROPOUT))
 
-model.add(LSTM(WINDOW_SIZE * 2, return_sequences=True))
+model.add(LSTM(WINDOW_SIZE * 2, return_sequences=False))
 model.add(Dropout(rate=DROPOUT))
 
-model.add(LSTM(WINDOW_SIZE, return_sequences=False))
+#model.add(LSTM(WINDOW_SIZE, return_sequences=False))
 
 model.add(Dense(units=1))
 
@@ -110,12 +110,12 @@ model.compile(
 
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 
 history = model.fit(
     X_train,
     y_train,
-    epochs=20,
+    epochs=40,
     batch_size=BATCH_SIZE,
     shuffle=False,
     validation_split=0.1,
