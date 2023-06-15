@@ -7,6 +7,9 @@ import os
 from PIL import Image
 from datetime import date, timedelta
 import base64
+import numpy as np
+from streamlit_extras.switch_page_button import switch_page
+
 
 
 image = Image.open('image.png')
@@ -20,6 +23,18 @@ cryptocurrencies = [
     {"name": "XRP-Ripple", "current_price": 0.8, "predicted_price": 1.0, "csv_file": "XRPUSDT.csv"},
     {"name": "ADA-Cardano", "current_price": 2.0, "predicted_price": 2.5, "csv_file": "ADAUSDT.csv"}
 ]
+
+def load_prediction(crypto):
+    arr = np.load(f"models/{crypto['name'][0: 3]}_ypred.npy")
+    prediction = arr[-1, -1]
+    format_prediction = "${:.2f}".format(prediction) 
+    return format_prediction  # Return the prediction array
+
+def load_current(crypto):
+    arr = np.load(f"models/{crypto['name'][0: 3]}_xtest.npy")
+    current = arr[-1, -1].item()
+    format_current = "${:.2f}".format(current) 
+    return format_current  # Return the prediction array
 
 def plot_miniature_price(crypto):
     # Load the price data for the selected cryptocurrency
@@ -67,15 +82,11 @@ def plot_word_cloud(crypto):
     relative_path = os.path.relpath(absolute_path, start=current_dir)
 
     df = pd.read_csv(relative_path)
-
     text = " ".join(str(tweet) for tweet in df.new_tweet)
-
     # Define the list of keywords to exclude
     excluded_keywords = ["bitcoin", "btc", "ethereum", "eth", "binance", "bnb", "ripple", "xrp", "cardano", "ada", "crypto", "cryptocurrency", "cryptocurrencies"]
-
     # Remove excluded keywords from the text
     text = ' '.join(str(word) for word in text.split() if word not in excluded_keywords)
-
     # Create the word cloud
     #, font_path='/System/Library/Fonts/Supplemental/Arial.ttf'
     word_cloud = WordCloud(collocations = False, background_color = 'white', font_path='/System/Library/Fonts/Supplemental/Arial.ttf', colormap='BrBG', width=800, height=400).generate(text)
@@ -96,29 +107,32 @@ def main():
     table_data = []
     for crypto in cryptocurrencies:
         row = [
-            crypto['name'],
-            f"${crypto['current_price']}",
-            f"${crypto['predicted_price']}",
+            f"{crypto['name']}",
+            load_current(crypto),
+            load_prediction(crypto),
             plot_miniature_price(crypto),
-            f"<a href='#{crypto['name'].replace(' ', '-')}'>Crypto Page</a>"
+            f"{crypto['name'].replace(' ', '-').lower()}"  # Anchor ID for navigation
         ]
         table_data.append(row)
 
     # Create a custom HTML table with embedded images
-    table_html = "<table><tbody>"
+    table_html = "<table style='border-collapse: collapse;'><tbody>"
     for row in table_data:
-        table_html += "<tr>"
-        for item in row:
-            if item.startswith("<img src="):  # Embed the image in the cell
-                table_html += f"<td>{item}</td>"
+        table_html += "<tr style='border-top: 3px solid gray; border-bottom: 3px solid gray;'>"
+        for i, item in enumerate(row):
+            if i == len(row) - 1:  # Create the clickable link for the cryptocurrency
+                table_html += f"<td style='text-align:center; border-right: none;'><a href='#{item}'>Crypto Page</a></td>"
+            elif isinstance(item, np.ndarray):  # Handle the prediction array
+                table_html += f"<td style='text-align:center; border-right: none; border-left: none;'>{item:.2f}</td>"
+            elif isinstance(item, str) and item.startswith("<img src="):  # Embed the image in the cell
+                table_html += f"<td style='border-right: none;'>{item}</td>"
             else:
-                table_html += f"<td>{item}</td>"
+                table_html += f"<td style='border-right: none;'>{item}</td>"
         table_html += "</tr>"
     table_html += "</tbody></table>"
 
     # Display the HTML table
     st.markdown(table_html, unsafe_allow_html=True)
-
 
 # Create a cryptocurrency-specific page
 def crypto_page(crypto):
@@ -130,9 +144,15 @@ def crypto_page(crypto):
 
     # Display the miniature price graph
     plot_miniature_price(crypto)
-
     # Display the word cloud
     plot_word_cloud(crypto)
+
+# Create sections for each cryptocurrency
+for crypto in cryptocurrencies:
+    st.markdown(f"<h2 id='{crypto['name'].replace(' ', '-')}'>{crypto['name']} Price Analysis</h2>", unsafe_allow_html=True)
+    st.write(f"Current Price: ${crypto['current_price']}")
+    st.write(f"Predicted Price: ${crypto['predicted_price']}")
+    crypto_page(crypto)
     
 
 if __name__ == "__main__":
