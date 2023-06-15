@@ -9,7 +9,7 @@ sentiment_directory=os.path.join(this_files_path, "data", "sentiment")
 
 data_generator=Datagen(sentiment_directory)
 
-generate=True
+generate=False
 if generate:
     sentiment_df=data_generator.generate_sentiment()
 else:

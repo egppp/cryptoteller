@@ -6,67 +6,59 @@ from wordcloud import WordCloud
 import os
 from PIL import Image
 from datetime import date, timedelta
+import base64
+
 
 image = Image.open('image.png')
 st.image(image)
 
 # Define the available cryptocurrencies
-cryptocurrencies = ["BTC-Bitcoin", "ETH-Ethereum", "BNB-Binance", "XRP-Ripple", "ADA-Cardano"]
+cryptocurrencies = [
+    {"name": "BTC-Bitcoin", "current_price": 40000, "predicted_price": 50000, "csv_file": "BTCUSDT.csv"},
+    {"name": "ETH-Ethereum", "current_price": 3000, "predicted_price": 3500, "csv_file": "ETHUSDT.csv"},
+    {"name": "BNB-Binance", "current_price": 400, "predicted_price": 500, "csv_file": "BNBUSDT.csv"},
+    {"name": "XRP-Ripple", "current_price": 0.8, "predicted_price": 1.0, "csv_file": "XRPUSDT.csv"},
+    {"name": "ADA-Cardano", "current_price": 2.0, "predicted_price": 2.5, "csv_file": "ADAUSDT.csv"}
+]
 
-def main():
-# Get the user-selected cryptocurrency
-    selected_crypto = st.selectbox("Which crypto?", cryptocurrencies)
-    if st.button("View Price"):
-        # Navigate to the price plot page
-        price_plot_page(selected_crypto)
-    
-def price_plot_page(selected_crypto):
-
-    # Map the selected cryptocurrency to the corresponding CSV file name
-    crypto_mapping = {
-        "BTC-Bitcoin": "BTCUSDT.csv",
-        "ETH-Ethereum": "ETHUSDT.csv",
-        "BNB-Binance": "BNBUSDT.csv",
-        "XRP-Ripple": "XRPUSDT.csv",
-        "ADA-Cardano": "ADAUSDT.csv"
-    }
-
-    # Get the file path for the selected cryptocurrency
-    file_path = f"data/{crypto_mapping[selected_crypto]}"
-
+def plot_miniature_price(crypto):
     # Load the price data for the selected cryptocurrency
+    file_path = f"data/{crypto['csv_file']}"
     price_data = pd.read_csv(file_path)
 
-    # Convert 'Date' column to datetime type
+    # Convert 'open_time' column to datetime type
     price_data['open_time'] = pd.to_datetime(price_data['open_time'], unit='ms')
 
-    # Define the available date range
-    min_date = price_data['open_time'].min().date()
-    max_date = price_data['open_time'].max().date()
+    # Filter the price data for the last year
+    ytd_data = price_data.tail(365)
 
-    # Define the default value for the "From date" input
-    default_from_date = min_date
+    # Plot the miniature price plot
+    fig, ax = plt.subplots(figsize=(5, 2))
+    ax.plot(ytd_data['open_time'], ytd_data['open'], color='#275C54')
+    ax.set_axis_off()  # Turn off the axis
+    ax.margins(0)  # Remove margins
+    fig.tight_layout(pad=0)  # Remove padding
+    plt.savefig("plot.png", dpi=40)  # Save the plot with low resolution
 
-    # Get the date range from the user
-    from_date = st.date_input('From date', value=default_from_date, min_value=min_date, max_value=max_date)
-    to_date = st.date_input('To date', min_value=from_date, max_value=max_date, value=max_date)
+    # Convert the plot image to a base64 encoded string
+    with open("plot.png", "rb") as img_file:
+        img_data = img_file.read()
+        img_base64 = base64.b64encode(img_data).decode("utf-8")
 
-    # Filter the price data based on the selected date range
-    filtered_data = price_data[(price_data['open_time'].dt.date >= from_date) & (price_data['open_time'].dt.date <= to_date)]
+    # Remove the temporary plot image file
+    plt.close()
+    plt.clf()
+    plt.cla()
+    plt.gcf().clear()
 
-    # Plot the price graph
-    fig, ax = plt.subplots()
-    ax.plot(filtered_data['open_time'], filtered_data['open'], color='#275C54')
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Price')
-    ax.set_title(f'Price evolution for {selected_crypto}')
-    st.pyplot(fig)
+    return f"<img src='data:image/png;base64,{img_base64}'/>"
 
+def plot_word_cloud(crypto):
     # Get the absolute path of the current working directory
     current_dir = os.getcwd()
 
     # Define the path of the file relative to the current directory
-    file_path = f"data/sentiment/{selected_crypto[0: 3].lower()}.csv"
+    file_path = f"data/sentiment/{crypto['name'][0: 3].lower()}.csv"
 
     # Join the current directory path with the file path to get the absolute file path
     absolute_path = os.path.join(current_dir, file_path)
@@ -93,7 +85,57 @@ def price_plot_page(selected_crypto):
     fig, ax = plt.subplots()
     ax.imshow(word_cloud, interpolation='bilinear')
     ax.axis("off")
-    st.pyplot(fig)
+    st.pyplot(fig)    
+
+
+# Create a landing page with miniature price plots
+def main():
+    st.title("Top 5 Cryptocurrencies by Market Capitalisation")
+
+    # Create the table data
+    table_data = []
+    for crypto in cryptocurrencies:
+        row = [
+            crypto['name'],
+            f"${crypto['current_price']}",
+            f"${crypto['predicted_price']}",
+            plot_miniature_price(crypto),
+            f"<a href='#{crypto['name'].replace(' ', '-')}'>Crypto Page</a>"
+        ]
+        table_data.append(row)
+
+    # Create a custom HTML table with embedded images
+    table_html = "<table><tbody>"
+    for row in table_data:
+        table_html += "<tr>"
+        for item in row:
+            if item.startswith("<img src="):  # Embed the image in the cell
+                table_html += f"<td>{item}</td>"
+            else:
+                table_html += f"<td>{item}</td>"
+        table_html += "</tr>"
+    table_html += "</tbody></table>"
+
+    # Display the HTML table
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
+# Create a cryptocurrency-specific page
+def crypto_page(crypto):
+    st.title(f"{crypto['name']} Price Analysis")
+
+    # Display the current price and predicted price
+    st.write(f"Current Price: ${crypto['current_price']}")
+    st.write(f"Predicted Price: ${crypto['predicted_price']}")
+
+    # Display the miniature price graph
+    plot_miniature_price(crypto)
+
+    # Display the word cloud
+    plot_word_cloud(crypto)
+    
 
 if __name__ == "__main__":
     main()
+
+
