@@ -21,7 +21,7 @@ import os
 from joblib import dump, load
 
 class Preprocessor:
-    def __init__(self, SEQ_LEN=70): #remember to change it back to 70
+    def __init__(self, SEQ_LEN=100): #remember to change it back to 70
         self.SEQ_LEN=SEQ_LEN
         pass
     def to_sequences(self, data,sentiment, seq_len):
@@ -128,7 +128,7 @@ def c_trainer(coin, plotting=False):
 
     # Training
     es = EarlyStopping(monitor="val_loss",
-                        patience=10,
+                        patience=25,
                         mode="min",
                         restore_best_weights=True)
 
@@ -153,11 +153,11 @@ def c_trainer(coin, plotting=False):
     model_seq.save(f'models/{coin}_model')
     dump(scaler, f'models/{coin}_scaler')
     np.save(f'models/{coin}_xtest.npy', X_test)
-    
+
     # Evaluation
     MAE=scaler.inverse_transform([[model_seq.evaluate(X_test, y_test)[1]]])[0][0]
     print(f"MAE for the test set: {MAE}")
-    
+
     if plotting == True:
         # Plot the training loss and validation loss
         plt.plot(history.history['loss'])
@@ -167,7 +167,7 @@ def c_trainer(coin, plotting=False):
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
         plt.show()
-        
+
         # Prediction
         y_hat = model_seq.predict(X_test)
         # Inverse transform the scaled data to get the actual prices
@@ -188,7 +188,7 @@ def c_trainer(coin, plotting=False):
         plt.xlabel('Time [days]')
         plt.ylabel('Price')
         plt.show()
-        
+
         #Plot the closing price over time
         ax = df.plot(x='open_time', y='close');
         ax.set_xlabel("Date")
@@ -196,14 +196,11 @@ def c_trainer(coin, plotting=False):
         ax.set_title(f"Evolution {coin} vs. USD")
 
         plt.show()
-        
-    
+
+
     return f"{coin} model is trained"
 
 symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
 for s in symbols:
     coin = s[0: 3]
     print(c_trainer(coin, plotting=True))
-    
-
-
