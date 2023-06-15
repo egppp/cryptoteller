@@ -6,7 +6,7 @@ import pandas as pd
 
 this_files_path=os.getcwd()
 sentiment_directory=os.path.join(this_files_path, "data", "sentiment")
-'''
+
 data_generator=Datagen(sentiment_directory)
 
 generate=True
@@ -14,7 +14,7 @@ if generate:
     sentiment_df=data_generator.generate_sentiment()
 else:
     sentiment_df=data_generator.read_csv()
-'''
+
     
 
 def aggregated_sentiment(csv_path, coin, output_path):

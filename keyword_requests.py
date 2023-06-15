@@ -11,7 +11,7 @@ access_token = 'ZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lK
 
 
 def make_requests(keyword):
-    start_date = datetime.strptime("2022-07-01", "%Y-%m-%d")
+    start_date = datetime.strptime("2022-11-01", "%Y-%m-%d")
     end_date = datetime.strptime("2023-01-01", "%Y-%m-%d")
 
     keyword_data = []

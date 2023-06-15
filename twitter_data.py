@@ -35,6 +35,6 @@ def create_tw_df(from_date):
         
     return tw_symbols
    
-tw_symbols = create_tw_df("06.21")
+tw_symbols = create_tw_df("07.22")
 
 print(tw_symbols['tw_btc']['created_time'])
