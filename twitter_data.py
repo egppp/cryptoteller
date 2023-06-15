@@ -3,38 +3,40 @@ import json
 from pandas import json_normalize
 
 from datetime import datetime
-import glob
+import os
 
 symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"] 
 
 keywords_list = ["bitcoin OR btc", "ethereum OR eth", "binance OR bnb", "ripple OR xrp", "cardano OR ada"]  #remember to update! 12.06
-start_date = datetime.strptime("2021-01-01", "%Y-%m-%d")
-end_date = datetime.strptime("2021-03-01", "%Y-%m-%d")
+#start_date = datetime.strptime("2021-01-01", "%Y-%m-%d")
+#end_date = datetime.strptime("2021-03-01", "%Y-%m-%d")
 
 def create_tw_df(from_date):
-    tw_symbols = {}    
+    tw_symbols = {}
+    
     for i, s in enumerate(symbols):
         coin = s[0: 3].lower()
         data_frames = []
-        # Specify the directory path
-        directory = "data/twitter"
-        # Use glob to find files starting with "bitcoin" in the directory
-        fpath = f"{directory}/{keywords_list[i]}_{from_date}*"
-        files = glob.glob(fpath)
-        print(files)
         
-        for file in files: 
-            with open(file, "r") as f:
-                data = json.load(f)
-                for i in range(len(data)):
-                    if 'data' in data[i]['data'] and 'items' in data[i]['data']['data']:
-                        df = pd.DataFrame.from_dict(data[i]['data']['data']['items'])
-                        data_frames.append(df)
- 
+        for date in from_dates:
+            directory = "data/twitter"
+            filename = f"{keywords_list[i]}_{date}.json"
+            file_path = os.path.join(directory, filename)
+            
+            if os.path.exists(file_path):
+                with open(file_path, "r") as f:
+                    data = json.load(f)
+                    for item in data:
+                        if 'data' in item['data'] and 'items' in item['data']['data']:
+                            df = pd.DataFrame.from_dict(item['data']['data']['items'])
+                            data_frames.append(df)
+        
         tw_symbols[f"tw_{coin}"] = pd.concat(data_frames)
         
     return tw_symbols
+
    
-tw_symbols = create_tw_df("07.22")
+from_dates = ["11.22", "01.23"]
+tw_symbols = create_tw_df(from_dates)
 
 print(tw_symbols['tw_btc']['created_time'])
